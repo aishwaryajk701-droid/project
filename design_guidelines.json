@@ -1,0 +1,197 @@
+{
+  "project_name": "AgriGaurd",
+  "archetype": "ORGANIC & EARTHY fused with HIGH-PRECISION SATELLITE TACTICAL (Archetype 1 + Archetype 4)",
+  "theme": "Dark Mode Precision Earth Observation (Deep Obsidian Forest #0B130E, Emerald Radar #10B981, High-Contrast Flood Aqua #06B6D4, Amber Warning #F59E0B, Crimson Threat #EF4444)",
+  "colors": {
+    "surfaces": [
+      {
+        "name": "page",
+        "kind": "solid",
+        "bg": "#0B130E",
+        "on_bg": "#ECFDF5",
+        "on_bg_muted": "#9CA3AF"
+      },
+      {
+        "name": "panel",
+        "kind": "solid",
+        "bg": "#121F18",
+        "on_bg": "#F3F4F6",
+        "on_bg_muted": "#94A3B8"
+      },
+      {
+        "name": "card_elevated",
+        "kind": "solid",
+        "bg": "#182820",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#9CA3AF"
+      },
+      {
+        "name": "inverse",
+        "kind": "solid",
+        "bg": "#F0FDF4",
+        "on_bg": "#064E3B",
+        "on_bg_muted": "#047857"
+      },
+      {
+        "name": "map_hud",
+        "kind": "glass",
+        "contrast_against": "#0B130E",
+        "guarantee": "backdrop-blur-xl bg-[#0B130E]/85 border border-emerald-500/20 shadow-2xl",
+        "on_bg": "#F9FAFB",
+        "on_bg_muted": "#9CA3AF",
+        "roles": {
+          "link": "#34D399",
+          "error": "#F87171",
+          "success": "#10B981",
+          "warning": "#FBBF24",
+          "info": "#38BDF8"
+        }
+      },
+      {
+        "name": "hero",
+        "kind": "image",
+        "contrast_against": "#0A110D",
+        "guarantee": "scrim: linear-gradient(to bottom, rgba(11,19,14,0.85) 0%, rgba(11,19,14,0.95) 100%)",
+        "on_bg": "#FFFFFF",
+        "on_bg_muted": "#A7F3D0",
+        "roles": {
+          "link": "#34D399",
+          "error": "#F87171",
+          "success": "#10B981"
+        }
+      },
+      {
+        "name": "badge_flood_severe",
+        "kind": "solid",
+        "bg": "#450A0A",
+        "on_bg": "#FCA5A5",
+        "on_bg_muted": "#F87171"
+      },
+      {
+        "name": "badge_flood_safe",
+        "kind": "solid",
+        "bg": "#064E3B",
+        "on_bg": "#6EE7B7",
+        "on_bg_muted": "#34D399"
+      },
+      {
+        "name": "badge_suitability_high",
+        "kind": "solid",
+        "bg": "#064E3B",
+        "on_bg": "#A7F3D0",
+        "on_bg_muted": "#6EE7B7"
+      }
+    ],
+    "accent": "#10B981",
+    "on_accent": "#022C22",
+    "secondary_accent": "#06B6D4",
+    "border_subtle": "#1E3A2B",
+    "border_glow": "#10B98140"
+  },
+  "typography": {
+    "font_family_heading": "Outfit Variable, sans-serif",
+    "font_family_body": "DM Sans Variable, sans-serif",
+    "font_family_mono": "JetBrains Mono Variable, monospace",
+    "scale_px": {
+      "display": 56,
+      "h1": 40,
+      "h2": 32,
+      "h3": 24,
+      "h4": 20,
+      "body": 16,
+      "caption": 14
+    },
+    "letter_spacing": {
+      "display": "tracking-tight",
+      "h1": "tracking-tight",
+      "overline": "tracking-[0.2em] uppercase font-mono text-xs"
+    }
+  },
+  "entry_surfaces": {
+    "/": "split hero — brand tagline + radar stats + primary CTA left, live satellite flood radar simulation interactive map preview right",
+    "/login": "branded split login — positioning panel with satellite mission telemetry left, secure farmer credentials form right",
+    "/register": "branded split register — platform capability matrix left, role-selection & farm onboarding form right"
+  },
+  "layouts": {
+    "dashboard_grid": "MODE B: High Density Grid (grid-cols-1 md:grid-cols-12 gap-6 p-6 md:p-8 max-w-7xl mx-auto)",
+    "gis_split_view": "h-[calc(100vh-4rem)] flex flex-col lg:flex-row overflow-hidden",
+    "gis_map_area": "flex-1 relative h-[50vh] lg:h-full bg-[#070D09]",
+    "gis_dock_panel": "w-full lg:w-[480px] xl:w-[540px] h-[50vh] lg:h-full overflow-y-auto bg-[#121F18] border-t lg:border-t-0 lg:border-l border-[#1E3A2B] p-6 space-y-6 custom-scrollbar"
+  },
+  "visual_enhancers": {
+    "radar_grid_lines": "bg-[radial-gradient(#10B981_1px,transparent_1px)] [background-size:24px_24px] opacity-10",
+    "tactical_scanlines": "repeating-linear-gradient(0deg, rgba(16,185,129,0.03) 0px, rgba(16,185,129,0.03) 1px, transparent 1px, transparent 2px)",
+    "satellite_card_border": "border border-[#1E3A2B] hover:border-emerald-500/50 transition-colors duration-200 shadow-lg shadow-black/40",
+    "glowing_indicator": "relative flex h-3 w-3 inline-block mr-2"
+  },
+  "motion": {
+    "fade_in_stagger": "initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}",
+    "map_layer_transition": "transition-opacity duration-300 ease-in-out",
+    "reduced_motion": "respect prefers-reduced-motion via motion/react hooks and standard CSS fallbacks"
+  },
+  "accessibility": {
+    "apca_contrast": "All text tokens strictly maintain >= 4.5:1 WCAG AA and APCA Lc 60+ against declared container surfaces.",
+    "keyboard_navigation": "Interactive map controls, tab list, and drawer triggers have visible ring focus ring-2 ring-emerald-400 focus:outline-none.",
+    "testing_attributes": "All buttons, navigation tabs, draw tools, file inputs, and cards MUST have data-testid attributes (kebab-case, e.g. data-testid='field-polygon-draw-btn', data-testid='run-satellite-analysis-btn')."
+  },
+  "image_urls": {
+    "hero_satellite_farm": {
+      "url": "https://images.unsplash.com/photo-1781816928181-285e907c69cf?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHw0fHxzYXRlbGxpdGUlMjBmYXJtJTIwYWdyaWN1bHR1cmUlMjBhZXJpYWwlMjBmbG9vZHxlbnwwfHx8fDE3OTA1ODYzODd8MA&ixlib=rb-4.1.0&q=85",
+      "category": "hero_background",
+      "description": "High-altitude aerial view of agricultural fields showing boundary variations and water presence"
+    },
+    "flood_before_after_satellite": {
+      "url": "https://images.unsplash.com/photo-1553392636-d15d8f919c8d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwyfHxzYXRlbGxpdGUlMjBmYXJtJTIwYWdyaWN1bHR1cmUlMjBhZXJpYWwlMjBmbG9vZHxlbnwwfHx8fDE3OTA1ODYzODd8MA&ixlib=rb-4.1.0&q=85",
+      "category": "flood_comparison_post",
+      "description": "Satellite river and inundated agricultural floodplain imagery for before/after comparison slider"
+    },
+    "lush_cropland_optical": {
+      "url": "https://images.unsplash.com/photo-1511802269876-bf873cc7b2c5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzV8MHwxfHNlYXJjaHw0fHxsdXNoJTIwZ3JlZW4lMjBjcm9wcyUyMGZpZWxkJTIwZmFybSUyMGFlcmlhbHxlbnwwfHx8fDE3OTA1ODYzODd8MA&ixlib=rb-4.1.0&q=85",
+      "category": "sentinel_optical_healthy_crop",
+      "description": "Aerial view of vibrant green agricultural parcel used for NDVI verification baseline"
+    },
+    "inundated_valley_flood": {
+      "url": "https://images.unsplash.com/photo-1691515182613-4b6604049b5b?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxzYXRlbGxpdGUlMjBmYXJtJTIwYWdyaWN1bHR1cmUlMjBhZXJpYWwlMjBmbG9vZHxlbnwwfHx8fDE3OTA1ODYzODd8MA&ixlib=rb-4.1.0&q=85",
+      "category": "flood_event_gallery",
+      "description": "Extensive wetland and water spread over agricultural perimeter"
+    }
+  },
+  "component_hierarchy": {
+    "header": {
+      "path": "frontend/src/components/layout/Navbar.tsx",
+      "spec": "Sticky top-0 z-50 backdrop-blur-xl bg-[#0B130E]/90 border-b border-[#1E3A2B] px-6 py-3.5 flex items-center justify-between"
+    },
+    "map_view": {
+      "path": "frontend/src/components/gis/AgriGisMap.tsx",
+      "spec": "Leaflet container with polygon draw tool (Leaflet.draw / SVG vector layer), GPS locate, layer switcher (Sentinel-1 SAR, Sentinel-2 Optical, Land Cover, DEM Elevation, Soil Moisture, Permanent Water, Flood Inundation), opacity sliders, synced before/after swipe slider"
+    },
+    "pipeline_progress": {
+      "path": "frontend/src/components/analysis/AnalysisPipelineTracker.tsx",
+      "spec": "Real-time step-by-step checklist with status indicators (LOCATION -> SAR -> PERMANENT WATER REMOVAL -> CROPLAND ID -> SOIL/DEM -> SUITABILITY -> REPORT)"
+    },
+    "confidence_engine_card": {
+      "path": "frontend/src/components/analysis/ConfidenceEngineBreakdown.tsx",
+      "spec": "Weights display: SAR 30%, Temporal Change 20%, Historical Water 15%, Land Cover 10%, Optical 10%, Terrain 10%, Data Quality 5% with explainability badge"
+    },
+    "land_suitability_radar": {
+      "path": "frontend/src/components/suitability/LandSuitabilityMatrix.tsx",
+      "spec": "Score card 0-100 with sub-scores: Soil (82), Moisture (76), Terrain (91), Flood Risk (48), Land Cover (94), plus recommended crops with AI reasoning and risk mitigation"
+    },
+    "before_after_slider": {
+      "path": "frontend/src/components/gis/BeforeAfterComparisonSlider.tsx",
+      "spec": "Side-by-side or split curtain slider comparing pre-flood baseline with post-event SAR flood mask"
+    },
+    "seed_ai_verifier": {
+      "path": "frontend/src/components/seed/SeedAiInspection.tsx",
+      "spec": "Upload or sample selector with genuine/counterfeit classification, purity %, germination score, and seed batch diagnostics"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Use dark palette defined in surfaces (#0B130E background, #121F18 panels, #10B981 emerald accents, #06B6D4 cyan water accents).",
+    "Install leaflet and @types/leaflet: run 'cd /app/frontend && yarn add leaflet @types/leaflet leaflet-draw @types/leaflet-draw' if needed.",
+    "Include rich demo seed data representing Indian agricultural contexts (e.g. Punjab Wheat Fields, Godavari Delta Paddy, Assam Brahmaputra Floodplain, Vidarbha Cotton, Bihar Kosi River basin).",
+    "All analytical sections must emphasize explainability: include 'Why AgriGaurd detected this flood' with green checkmarks (✓) and warning icons (⚠), plus scientific disclaimers ('Remote-sensing based estimate — Field verification recommended').",
+    "Never display unhandled 500 errors or blank screens if backend calls fail; implement elegant fallback demo telemetry so user can explore all GIS tools, seed verifier, reports, and admin dashboards smoothly.",
+    "Ensure every interactive element has a data-testid attribute for Playwright automated verification."
+  ]
+}

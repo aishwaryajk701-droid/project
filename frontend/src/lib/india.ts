@@ -1,0 +1,26 @@
+// Compact India state → districts reference for the manual location cascade.
+
+export const INDIA_STATES: Record<string, string[]> = {
+  "Andhra Pradesh": ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Kurnool", "West Godavari", "Visakhapatnam"],
+  Assam: ["Barpeta", "Dibrugarh", "Jorhat", "Kamrup", "Majuli", "Nagaon", "Sivasagar"],
+  Bihar: ["Bhagalpur", "Gaya", "Katihar", "Muzaffarpur", "Patna", "Purnia", "Samastipur"],
+  Chhattisgarh: ["Bilaspur", "Durg", "Raipur", "Raigarh", "Rajnandgaon"],
+  Delhi: ["New Delhi", "North West Delhi", "South Delhi", "South West Delhi"],
+  Goa: ["North Goa", "South Goa"],
+  Gujarat: ["Ahmedabad", "Bhavnagar", "Junagadh", "Kutch", "Rajkot", "Surat", "Vadodara"],
+  Haryana: ["Bhiwani", "Gurugram", "Hisar", "Karnal", "Panipat", "Rohtak", "Sirsa"],
+  "Himachal Pradesh": ["Kangra", "Kullu", "Mandi", "Shimla", "Solan"],
+  Jharkhand: ["Bokaro", "Dhanbad", "Hazaribagh", "Ranchi", "Singhbhum"],
+  Karnataka: ["Belagavi", "Bengaluru Rural", "Hassan", "Mysuru", "Raichur", "Tumakuru"],
+  Kerala: ["Ernakulam", "Kottayam", "Kozhikode", "Palakkad", "Thrissur", "Wayanad"],
+  "Madhya Pradesh": ["Bhopal", "Gwalior", "Indore", "Jabalpur", "Ujjain", "Vidisha"],
+  Maharashtra: ["Amravati", "Aurangabad", "Nagpur", "Nashik", "Pune", "Solapur", "Yavatmal"],
+  Odisha: ["Balasore", "Cuttack", "Ganjam", "Kendrapara", "Puri", "Sambalpur"],
+  Punjab: ["Amritsar", "Bathinda", "Jalandhar", "Ludhiana", "Patiala"],
+  Rajasthan: ["Ajmer", "Bikaner", "Jaipur", "Jodhpur", "Kota", "Sri Ganganagar"],
+  "Tamil Nadu": ["Coimbatore", "Madurai", "Salem", "Thanjavur", "Tiruchirappalli", "Villupuram"],
+  Telangana: ["Hyderabad", "Khammam", "Nizamabad", "Warangal", "Karimnagar"],
+  "Uttar Pradesh": ["Agra", "Gorakhpur", "Kanpur Nagar", "Lucknow", "Meerut", "Varanasi", "Saharanpur"],
+  Uttarakhand: ["Dehradun", "Haridwar", "Nainital", "Udham Singh Nagar"],
+  "West Bengal": ["Bardhaman", "Hooghly", "Howrah", "Malda", "Murshidabad", "Nadia", "North 24 Parganas"],
+};

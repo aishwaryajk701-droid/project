@@ -1,0 +1,183 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/outfit";
+@import "@fontsource-variable/dm-sans";
+@import "@fontsource-variable/jetbrains-mono";
+@import "leaflet/dist/leaflet.css";
+@import "leaflet-draw/dist/leaflet.draw.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: 'Outfit Variable', sans-serif;
+    --font-sans: 'DM Sans Variable', sans-serif;
+    --font-mono: 'JetBrains Mono Variable', monospace;
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: #0B130E;
+    --foreground: #ECFDF5;
+    --card: #121F18;
+    --card-foreground: #F3F4F6;
+    --popover: #182820;
+    --popover-foreground: #FFFFFF;
+    --primary: #10B981;
+    --primary-foreground: #022C22;
+    --secondary: #182820;
+    --secondary-foreground: #ECFDF5;
+    --muted: #182820;
+    --muted-foreground: #9CA3AF;
+    --accent: #06B6D4;
+    --accent-foreground: #032F36;
+    --destructive: #EF4444;
+    --border: #1E3A2B;
+    --input: #1E3A2B;
+    --ring: #10B981;
+    --chart-1: #10B981;
+    --chart-2: #06B6D4;
+    --chart-3: #F59E0B;
+    --chart-4: #EF4444;
+    --chart-5: #A7F3D0;
+    --radius: 0.625rem;
+    --sidebar: #0B130E;
+    --sidebar-foreground: #ECFDF5;
+    --sidebar-primary: #10B981;
+    --sidebar-primary-foreground: #022C22;
+    --sidebar-accent: #182820;
+    --sidebar-accent-foreground: #ECFDF5;
+    --sidebar-border: #1E3A2B;
+    --sidebar-ring: #10B981;
+}
+
+.dark {
+    --background: #0B130E;
+    --foreground: #ECFDF5;
+    --card: #121F18;
+    --card-foreground: #F3F4F6;
+    --popover: #182820;
+    --popover-foreground: #FFFFFF;
+    --primary: #10B981;
+    --primary-foreground: #022C22;
+    --secondary: #182820;
+    --secondary-foreground: #ECFDF5;
+    --muted: #182820;
+    --muted-foreground: #9CA3AF;
+    --accent: #06B6D4;
+    --accent-foreground: #032F36;
+    --destructive: #EF4444;
+    --border: #1E3A2B;
+    --input: #1E3A2B;
+    --ring: #10B981;
+    --chart-1: #10B981;
+    --chart-2: #06B6D4;
+    --chart-3: #F59E0B;
+    --chart-4: #EF4444;
+    --chart-5: #A7F3D0;
+    --sidebar: #0B130E;
+    --sidebar-foreground: #ECFDF5;
+    --sidebar-primary: #10B981;
+    --sidebar-primary-foreground: #022C22;
+    --sidebar-accent: #182820;
+    --sidebar-accent-foreground: #ECFDF5;
+    --sidebar-border: #1E3A2B;
+    --sidebar-ring: #10B981;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+    }
+}
+
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); opacity: 0.55; }
+  100% { transform: rotate(360deg); opacity: 0.55; }
+}
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45); }
+  70% { box-shadow: 0 0 0 12px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+@keyframes scan-line {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
+}
+.radar-sweep { animation: radar-sweep 6s linear infinite; }
+.pulse-ring { animation: pulse-ring 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.scan-line { animation: scan-line 3.5s ease-in-out infinite; }
+
+.radar-grid {
+  background-image: radial-gradient(#10B981 1px, transparent 1px);
+  background-size: 24px 24px;
+  opacity: 0.08;
+}
+.tactical-scanlines {
+  background: repeating-linear-gradient(0deg, rgba(16,185,129,0.03) 0px, rgba(16,185,129,0.03) 1px, transparent 1px, transparent 2px);
+}
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #0B130E; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #1E3A2B; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #10B981; }
+
+@media (prefers-reduced-motion: reduce) {
+  .radar-sweep, .pulse-ring, .scan-line { animation: none; }
+}
+
+/* Leaflet dark harmonisation */
+.leaflet-container { background: #070D09; font-family: var(--font-sans); }
+.leaflet-bar, .leaflet-control-layers, .leaflet-draw-toolbar a {
+  background-color: #121F18 !important;
+  border-color: #1E3A2B !important;
+  color: #ECFDF5 !important;
+}
+.leaflet-control-layers-expanded { color: #ECFDF5; padding: 10px; }
+.leaflet-bar a { color: #ECFDF5 !important; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #121F18; color: #ECFDF5; }
