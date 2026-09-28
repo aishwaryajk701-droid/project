@@ -184,7 +184,9 @@ def test_report_pdf(client):
     r = client.get(f"/reports/analyses/{job['analysis_id']}/report.pdf")
     assert r.status_code == 200
     assert r.content[:4] == b"%PDF"
-    assert "Field Intelligence Report" in r.text
+    # ReportLab compresses page text, so assert on the PDF metadata title instead
+    assert b"AgriGaurd Analysis Report" in r.content
+    assert len(r.content) > 3000
 
 
 def test_export_csv(client):

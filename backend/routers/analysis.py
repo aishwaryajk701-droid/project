@@ -9,7 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
 from lib.db import db
-from lib.geo import PolygonError
+from lib.geo import PolygonError, validate_polygon
 from lib.security import current_user, new_id
 from models.agrigaurd import AnalyzeIn
 from services.analysis_service import create_job, run_job
@@ -27,6 +27,12 @@ def _clean(doc: Dict[str, Any]) -> Dict[str, Any]:
 async def analyze(body: AnalyzeIn, background: BackgroundTasks,
                   user: Dict[str, Any] = Depends(current_user)):
     """Run the full pipeline on a polygon. Optionally saves it as a new field."""
+    # Always reject an unusable boundary up front, whether or not it is being saved.
+    try:
+        validate_polygon(body.coordinates)
+    except PolygonError as exc:
+        raise HTTPException(400, str(exc))
+
     field = None
     if body.field_id:
         field = await db.fields.find_one({"id": body.field_id, "user_id": user["id"]})
