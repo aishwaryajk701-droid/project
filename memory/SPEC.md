@@ -38,6 +38,26 @@ permanent/seasonal water + river/built-up verification (OSM/Overpass) → land c
 Copernicus DEM terrain → SoilGrids → Open-Meteo weather → flood confidence (weighted) →
 severity → land suitability → crop engine → data quality → save.
 
+## Added features (v2)
+- **Sowing calendar** — `GET /api/fields/{id}/sowing-calendar`
+  (`services/sowing_service.py`). Per recommended crop, a 12-month grid of
+  SOW NOW / SOW / PREPARE / WAIT / UNCERTAIN / AVOID built from ICAR/FAO season
+  calendars + the field's crop score + measured Open-Meteo rainfall + detected flood
+  severity vs the crop's flood tolerance, with a drainage wait in days. Field tab "Sowing".
+- **Village Compare** — `GET /api/fields/{id}/village-compare?radius_km=`
+  (`services/village_service.py`). Benchmarks flood % and land suitability against all
+  analysed fields within the radius (default 25 km, max 200). Other users' fields are
+  ANONYMISED (distance/area/scores only, no owner, name, id or boundary). Needs ≥2
+  analysed neighbours, otherwise returns `INSUFFICIENT DATA`. Field tab "Village".
+- **Daily flood alerts** — platform cron `.emergent/crons.yml` →
+  `POST /api/cron/daily-flood-check` (bearer `WEBHOOK_CRON_SECRET`, acks immediately and
+  backgrounds `services/daily_alert_service.py`). Re-analyses every enabled monitoring
+  config, flags a ≥1 pp rise in agricultural flood as new water, writes the in-app alert
+  and sends one digest email per user via Emergent-managed Resend (`backend/emailer.py`,
+  guardrail gate `_assert_safe_email` on every send). SMS is optional via Twilio
+  (`backend/sms.py`). Preferences UI (channels, address/phone, min severity, test send)
+  lives on the Notifications page; `POST /api/alerts/test` sends a test email.
+
 ## Data honesty rules
 No fabricated values anywhere. Missing sources render as `DATA UNAVAILABLE`, the job ends in
 `PARTIAL`, and the data-quality panel lists exactly which datasets were missing.

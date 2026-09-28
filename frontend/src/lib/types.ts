@@ -389,3 +389,102 @@ export interface CropKBEntry {
   duration_days: string;
   limits: string;
 }
+
+// --- Sowing calendar (mirrors backend/services/sowing_service.py) ---
+export interface SowingMonth {
+  month: number;
+  label: string;
+  verdict: string;
+  reason: string;
+}
+
+export interface SowingFactor {
+  state: string;
+  note: string;
+  wait_days?: number;
+}
+
+export interface SowingCrop {
+  crop: string;
+  score: number | null;
+  seasons: string[];
+  duration_days: string;
+  flood_tolerance: number;
+  moisture_need: string;
+  months: SowingMonth[];
+  sow_window: string[];
+  current_verdict: string;
+  current_reason: string;
+  drainage_wait_days: number;
+  factors: { moisture: SowingFactor; flood: SowingFactor; limits: string };
+}
+
+export interface SowingCalendarOut {
+  field_id: string | null;
+  field_name: string | null;
+  analysis_id: string | null;
+  analysis_date: string | null;
+  month: number;
+  month_label: string;
+  season: string;
+  rainfall: {
+    last_7_days_mm: number | null;
+    last_30_days_mm: number | null;
+    forecast_precip_mm: number | null;
+    available: boolean;
+    source: string | null;
+  };
+  flood_severity: string | null;
+  flood_verified?: boolean;
+  agricultural_flood_pct: number | null;
+  crops: SowingCrop[];
+  methodology: string;
+  limitations: string[];
+}
+
+// --- Village compare (mirrors backend/services/village_service.py) ---
+export interface VillageAgg {
+  count: number;
+  average: number | null;
+  median: number | null;
+  min: number | null;
+  max: number | null;
+  your_value: number | null;
+  your_percentile: number | null;
+}
+
+export interface VillagePeer {
+  distance_km: number;
+  own_field: boolean;
+  name: string;
+  field_id: string | null;
+  area_ha: number | null;
+  district: string | null;
+  state: string | null;
+  flood_pct: number | null;
+  land_suitability: number | null;
+  recommended_crop: string | null;
+  analysed: boolean;
+}
+
+export interface VillageCompareOut {
+  status: string;
+  radius_km: number;
+  field?: {
+    id: string;
+    name: string | null;
+    flood_pct: number | null;
+    land_suitability: number | null;
+    recommended_crop: string | null;
+    district: string | null;
+    state: string | null;
+  };
+  neighbour_count: number;
+  analysed_neighbour_count: number;
+  flood: VillageAgg;
+  suitability: VillageAgg;
+  popular_crops: { crop: string; fields: number }[];
+  peers: VillagePeer[];
+  verdicts: string[];
+  privacy: string;
+}

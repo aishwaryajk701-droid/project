@@ -19,6 +19,7 @@ load_dotenv(ROOT_DIR / ".env")
 
 from lib.db import client, db, ensure_indexes
 from lib.ext_http import close_client
+from routers import cron, insights
 from routers import (admin, alerts, analysis, auth, crops, fields, health, reports, satellite,
                      seed_ai)
 from services.monitoring_service import scheduler_loop
@@ -59,6 +60,8 @@ api_router.include_router(crops.router)
 api_router.include_router(admin.router)
 api_router.include_router(health.router)
 api_router.include_router(seed_ai.router)
+api_router.include_router(insights.router)
+api_router.include_router(cron.router)
 
 
 @api_router.get("/")

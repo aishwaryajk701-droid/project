@@ -10,8 +10,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AgriGisMap from "@/components/gis/AgriGisMap";
 import { SeverityBadge, Stat } from "@/components/analysis/Primitives";
+import SowingCalendar from "@/components/analysis/SowingCalendar";
+import VillageCompare from "@/components/analysis/VillageCompare";
 import { apiGet, apiPost, apiPut } from "@/lib/api";
-import type { AnalysisDoc, CompareOut, FieldDoc, MonitoringConfig, NotificationDoc } from "@/lib/types";
+import type {
+  AnalysisDoc, CompareOut, FieldDoc, MonitoringConfig, NotificationDoc,
+  SowingCalendarOut, VillageCompareOut,
+} from "@/lib/types";
 
 const FREQ = [
   { v: "daily", l: "Daily" },
@@ -43,6 +48,15 @@ export default function FieldDetail() {
     queryKey: ["compare", a, b],
     queryFn: () => apiGet<CompareOut>(`/analyses/${a}/compare/${b}`),
     enabled: !!a && !!b, retry: false,
+  });
+
+  const { data: sowing, isError: sowingError } = useQuery<SowingCalendarOut>({
+    queryKey: ["sowing", fieldId],
+    queryFn: () => apiGet<SowingCalendarOut>(`/fields/${fieldId}/sowing-calendar`), retry: false,
+  });
+  const { data: village } = useQuery<VillageCompareOut>({
+    queryKey: ["village", fieldId],
+    queryFn: () => apiGet<VillageCompareOut>(`/fields/${fieldId}/village-compare`), retry: false,
   });
 
   const analyze = useMutation({
@@ -111,7 +125,7 @@ export default function FieldDetail() {
 
       <Tabs defaultValue="overview">
         <TabsList variant="line" className="flex-wrap h-auto" data-testid="field-tabs">
-          {["overview", "timeline", "compare", "monitoring", "alerts"].map((t) => (
+          {["overview", "timeline", "sowing", "village", "compare", "monitoring", "alerts"].map((t) => (
             <TabsTrigger key={t} value={t} data-testid={`field-tab-${t}`} className="capitalize">{t}</TabsTrigger>
           ))}
         </TabsList>
@@ -187,6 +201,21 @@ export default function FieldDetail() {
               </TableBody>
             </Table>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="sowing" className="pt-4" data-testid="panel-sowing">
+          {sowing ? <SowingCalendar data={sowing} /> : (
+            <p className="text-sm text-muted-foreground" data-testid="sowing-needs-analysis">
+              {sowingError ? "Run an analysis on this field first — the sowing calendar is built from its real soil, rainfall and flood results."
+                           : "Loading sowing calendar…"}
+            </p>
+          )}
+        </TabsContent>
+
+        <TabsContent value="village" className="pt-4" data-testid="panel-village">
+          {village ? <VillageCompare data={village} /> : (
+            <p className="text-sm text-muted-foreground" data-testid="village-loading">Loading nearby fields…</p>
+          )}
         </TabsContent>
 
         <TabsContent value="compare" className="pt-4" data-testid="panel-compare">
