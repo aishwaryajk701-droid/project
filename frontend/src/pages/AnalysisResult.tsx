@@ -8,6 +8,7 @@ import AgriGisMap from "@/components/gis/AgriGisMap";
 import {
   ConfidenceBreakdown, DataQualityCard, DemoBanner, EvidenceList, Limitations, SeverityBadge, Stat,
 } from "@/components/analysis/Primitives";
+import MultiSatelliteEvidence from "@/components/analysis/MultiSatelliteEvidence";
 import { apiGet } from "@/lib/api";
 import type { AnalysisDoc } from "@/lib/types";
 
@@ -225,8 +226,70 @@ export default function AnalysisResult() {
               <div className="grid grid-cols-2 gap-2">
                 <Stat label="NDVI mean" value={a.ndvi?.mean?.toFixed?.(3)} testid="veg-ndvi" />
                 <Stat label="NDMI mean" value={a.ndmi?.mean?.toFixed?.(3)} testid="veg-ndmi" />
+                <Stat label="NDWI mean" value={a.ndwi?.mean?.toFixed?.(3)} testid="veg-ndwi" />
+                <Stat label="NDWI water pixels" value={a.ndwi?.water_pixel_pct} unit="%" testid="veg-ndwi-water" />
               </div>
+              {a.ndwi ? (
+                <p className="text-xs text-emerald-100/85" data-testid="ndwi-interpretation">
+                  NDWI: {a.ndwi.interpretation} · {a.ndwi.formula} · {a.ndwi.role}
+                </p>
+              ) : (
+                <p className="text-xs text-amber-300" data-testid="ndwi-unavailable">
+                  NDWI DATA UNAVAILABLE — Sentinel-2 optical bands are needed and are not available
+                  for this observation.
+                </p>
+              )}
               <p className="text-xs text-amber-200" data-testid="optical-note">{a.optical_note}</p>
+
+              {a.landsat ? (
+                <div className="space-y-1.5 pt-2 border-t border-[#1E3A2B]" data-testid="landsat-block">
+                  <h4 className="text-sm font-semibold">Landsat 8/9 — independent optical evidence</h4>
+                  <p className="text-xs text-muted-foreground">
+                    {a.landsat.scene_count} scenes in the last {a.landsat.window_days} days ·{" "}
+                    {a.landsat.clear_scene_count} with cloud ≤ 30% · {a.landsat.source}
+                  </p>
+                  <div className="space-y-1">
+                    {a.landsat.scenes.slice(0, 5).map((s) => (
+                      <div key={s.scene_id} className="flex justify-between text-xs border-b border-[#1E3A2B] pb-0.5"
+                           data-testid={`landsat-scene-${s.scene_id}`}>
+                        <span className="text-muted-foreground">{s.satellite} · {String(s.acquired).slice(0, 10)}</span>
+                        <span className="font-mono text-emerald-300">cloud {s.cloud_pct ?? "—"}%</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">{a.landsat.note}</p>
+                </div>
+              ) : (
+                <p className="text-xs text-amber-300" data-testid="landsat-unavailable">
+                  Landsat scene search DATA UNAVAILABLE ({a.landsat_status ?? "unknown"}).
+                </p>
+              )}
+
+              {a.nasa ? (
+                <div className="space-y-1 pt-2 border-t border-[#1E3A2B]" data-testid="nasa-block">
+                  <h4 className="text-sm font-semibold">NASA POWER — independent environmental cross-check</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Stat label="NASA 7-day rain" value={a.nasa.rain_last_7_days_mm} unit="mm" testid="nasa-rain7" />
+                    <Stat label="NASA mean temp" value={a.nasa.temp_mean_c} unit="°C" testid="nasa-temp" />
+                  </div>
+                  {a.nasa_cross_check && (
+                    <p className="text-xs text-emerald-100/85" data-testid="nasa-crosscheck">
+                      {a.nasa_cross_check.status} — {a.nasa_cross_check.note}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-muted-foreground">{a.nasa.source} · {a.nasa.resolution}</p>
+                </div>
+              ) : (
+                <p className="text-xs text-amber-300" data-testid="nasa-unavailable">
+                  NASA POWER DATA UNAVAILABLE ({a.nasa_status ?? "unknown"}).
+                </p>
+              )}
+
+              {a.nisar && (
+                <p className="text-xs text-amber-300" data-testid="nisar-note">
+                  NISAR ({a.nisar.status}) — {a.nisar.message}
+                </p>
+              )}
             </TabsContent>
 
             <TabsContent value="crops" className="pt-3 space-y-3" data-testid="panel-crops">
@@ -261,6 +324,7 @@ export default function AnalysisResult() {
             </TabsContent>
 
             <TabsContent value="evidence" className="pt-3 space-y-4" data-testid="panel-evidence">
+              {a.multi_satellite && <MultiSatelliteEvidence data={a.multi_satellite} />}
               <div>
                 <h3 className="font-semibold mb-2">Why AgriGaurd reported this result</h3>
                 <EvidenceList evidence={f.evidence} />

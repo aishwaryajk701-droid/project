@@ -20,6 +20,7 @@ from lib.geo import PolygonError, bbox_from_polygon, polygon_area_ha, polygon_ce
 from lib.security import new_id
 from services import crop_engine, flood_service, landcover_service, soil_service, terrain_service
 from services import weather_service, osm_service, sentinel_service, water_service
+from services import landsat_service, nasa_service, nisar_service, multisat_service
 from services import demo_data, notification_service
 from services.suitability_engine import compute_land_suitability
 
@@ -196,11 +197,13 @@ async def _pipeline(job_id: str, coordinates: List[List[float]], user: Dict[str,
     # single outage downgrades the analysis to PARTIAL instead of failing the whole job.
     from lib.ext_http import safe
 
-    wx, sl, tn, oc = await asyncio.gather(
+    wx, sl, tn, oc, ls, ns = await asyncio.gather(
         safe("weather", _weather, "Open-Meteo"),
         safe("soil", _soil, "ISRIC SoilGrids"),
         safe("terrain", _terrain, "Copernicus DEM"),
-        safe("osm", _osm, "OpenStreetMap Overpass"))
+        safe("osm", _osm, "OpenStreetMap Overpass"),
+        safe("landsat", lambda: landsat_service.search_scenes(bbox), "USGS Landsat Collection 2"),
+        safe("nasa", lambda: nasa_service.power_daily(centroid[1], centroid[0]), "NASA POWER"))
 
     if wx["status"] != "OK":
         partial = True
@@ -250,16 +253,18 @@ async def _pipeline(job_id: str, coordinates: List[List[float]], user: Dict[str,
                      "SoilGrids + Copernicus DEM + Open-Meteo loaded", "done")
 
     # ---------- 8. VEGETATION (optical) ----------
-    ndvi_stats = ndmi_stats = None
+    ndvi_stats = ndmi_stats = ndwi_stats = None
     veg_change = None
     if s2_pair is not None:
         try:
             import numpy as np
             arr = s2_pair["after"]
-            b04, b08, b11 = arr[..., 2], arr[..., 3], arr[..., 4]
+            b03, b04, b08, b11 = arr[..., 1], arr[..., 2], arr[..., 3], arr[..., 4]
             valid = (arr[..., 6] > 0.5) & np.isfinite(b08) & np.isfinite(b04)
             ndvi_arr = (b08 - b04) / (b08 + b04 + 1e-9)
             ndmi_arr = (b08 - b11) / (b08 + b11 + 1e-9)
+            # NDWI (McFeeters 1996) = (Green - NIR) / (Green + NIR)
+            ndwi_arr = (b03 - b08) / (b03 + b08 + 1e-9)
             if valid.sum() > 30:
                 ndvi_stats = {"mean": float(np.nanmean(ndvi_arr[valid])),
                               "min": float(np.nanmin(ndvi_arr[valid])),
@@ -267,6 +272,19 @@ async def _pipeline(job_id: str, coordinates: List[List[float]], user: Dict[str,
                 ndmi_stats = {"mean": float(np.nanmean(ndmi_arr[valid])),
                               "min": float(np.nanmin(ndmi_arr[valid])),
                               "max": float(np.nanmax(ndmi_arr[valid]))}
+                nd_mean = float(np.nanmean(ndwi_arr[valid]))
+                ndwi_stats = {
+                    "mean": nd_mean,
+                    "min": float(np.nanmin(ndwi_arr[valid])),
+                    "max": float(np.nanmax(ndwi_arr[valid])),
+                    "water_pixel_pct": round(100.0 * float((ndwi_arr[valid] > 0).sum())
+                                             / float(valid.sum()), 2),
+                    "interpretation": ("open water / saturated surface" if nd_mean > 0.2
+                                       else "moist surface" if nd_mean > 0
+                                       else "no open-water signal"),
+                    "formula": "NDWI = (B03 - B08) / (B03 + B08) — McFeeters 1996",
+                    "role": "Supporting water/moisture evidence, not a standalone flood detector",
+                }
         except Exception as exc:
             logger.warning("optical stats failed: %s", exc)
     if sar.get("available") and s2_pair is None:
@@ -360,6 +378,20 @@ async def _pipeline(job_id: str, coordinates: List[List[float]], user: Dict[str,
 
     # ---------- 11. SAVE ----------
     await _set_stage(job_id, "saving_result", "Saving analysis to database")
+    # NDWI (McFeeters) comes from the Sentinel-2 block above; None when optical data is missing.
+    nisar_block = await nisar_service.search_scenes(bbox)
+    nasa_cross = nasa_service.cross_check(
+        ns.get("data") if ns["status"] == "OK" else None,
+        ((wx.get("data") or {}).get("recent") or {}).get("last_7_days_mm")
+        if wx["status"] == "OK" else None)
+    multi_sat = multisat_service.build_summary(
+        sar=sar, discovery=discovery, ndvi=ndvi_stats, ndwi=ndwi_stats or ndmi_stats,
+        landsat=ls.get("data") if ls["status"] == "OK" else None,
+        nasa=ns.get("data") if ns["status"] == "OK" else None,
+        nasa_cross_check=nasa_cross, nisar=nisar_block,
+        terrain=tn.get("data") if tn["status"] == "OK" else None,
+        landcover=landcover, water=water_verif,
+        soil=sl.get("data") if sl["status"] == "OK" else None, osm=osm_ctx)
     record = {
         "id": new_id(), "user_id": user["id"],
         "field_id": (field or {}).get("id"), "type": "satellite",
@@ -385,7 +417,16 @@ async def _pipeline(job_id: str, coordinates: List[List[float]], user: Dict[str,
         "weather": wx.get("data") if wx["status"] == "OK" else None,
         "weather_status": wx["status"],
         "osm_context": osm_ctx,
-        "ndvi": ndvi_stats, "ndmi": ndmi_stats, "vegetation_change": veg_change,
+        "ndvi": ndvi_stats, "ndmi": ndmi_stats, "ndwi": ndwi_stats,
+        "vegetation_change": veg_change,
+        "landsat": ls.get("data") if ls["status"] == "OK" else None,
+        "landsat_status": ls["status"],
+        "nasa": ns.get("data") if ns["status"] == "OK" else None,
+        "nasa_status": ns["status"],
+        "nasa_unavailable_products": nasa_service.unavailable_products(),
+        "nasa_cross_check": nasa_cross,
+        "nisar": nisar_block,
+        "multi_satellite": multi_sat,
         "optical_note": optical_note,
         "land_suitability": suitability,
         "crops": crops,
@@ -403,6 +444,9 @@ async def _pipeline(job_id: str, coordinates: List[List[float]], user: Dict[str,
             "dem": terrain_service.DEM_RESOLUTION if tn["status"] == "OK" else "DATA UNAVAILABLE",
             "weather": "Open-Meteo" if wx["status"] == "OK" else "DATA UNAVAILABLE",
             "osm": "OpenStreetMap Overpass" if oc["status"] == "OK" else "DATA UNAVAILABLE",
+            "landsat": (ls.get("data") or {}).get("source") if ls["status"] == "OK" else "DATA UNAVAILABLE",
+            "nasa": (ns.get("data") or {}).get("source") if ns["status"] == "OK" else "DATA UNAVAILABLE",
+            "nisar": nisar_block.get("status"),
         },
         "limitations": ["Remote-sensing based estimate", "Analytical confidence is not a validated probability",
                         "Field verification recommended"],

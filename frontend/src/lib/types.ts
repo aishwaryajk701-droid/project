@@ -227,6 +227,18 @@ export interface AnalysisDoc {
   weather_status: string;
   ndvi: { mean: number; min: number; max: number } | null;
   ndmi: { mean: number; min: number; max: number } | null;
+  ndwi: {
+    mean: number; min: number; max: number;
+    water_pixel_pct: number; interpretation: string; formula: string; role: string;
+  } | null;
+  landsat: LandsatBlock | null;
+  landsat_status?: string;
+  nasa: NasaPowerBlock | null;
+  nasa_status?: string;
+  nasa_unavailable_products?: { product: string; status: string; detail: string }[];
+  nasa_cross_check?: { status: string; note: string } | null;
+  nisar?: { available: boolean; status: string; message: string; role: string; source: string } | null;
+  multi_satellite?: MultiSatelliteSummary | null;
   optical_note: string | null;
   vegetation_change: string | null;
   land_suitability: Suitability;
@@ -487,4 +499,88 @@ export interface VillageCompareOut {
   peers: VillagePeer[];
   verdicts: string[];
   privacy: string;
+}
+
+// --- Multi-satellite evidence (mirrors backend/services/multisat_service.py) ---
+export interface MultiSatSourceRow {
+  key: string;
+  role: string;
+  status: string;
+  detail: string;
+  source: string | null;
+  acquired: string | null;
+  resolution: string | null;
+}
+
+export interface MultiSatelliteSummary {
+  sources: MultiSatSourceRow[];
+  available_count: number;
+  total_count: number;
+  agreement: { status: string; note: string };
+  cross_checks: { status: string; note: string }[];
+  disclaimer: string;
+  separation_note: string;
+}
+
+// --- Landsat (mirrors backend/services/landsat_service.py) ---
+export interface LandsatScene {
+  satellite: string;
+  scene_id: string;
+  product_id: string;
+  acquired: string | null;
+  cloud_pct: number | null;
+  wrs_path: string | null;
+  wrs_row: string | null;
+  collection: string;
+  resolution: string;
+  source: string;
+}
+
+export interface LandsatBlock {
+  available: boolean;
+  scene_count: number;
+  scenes: LandsatScene[];
+  clear_scene_count: number;
+  latest_acquired: string | null;
+  latest_clear_acquired: string | null;
+  window_days: number;
+  source: string;
+  role: string;
+  note: string;
+}
+
+// --- NASA POWER (mirrors backend/services/nasa_service.py) ---
+export interface NasaPowerBlock {
+  period: { start: string; end: string };
+  rain_total_mm: number | null;
+  rain_last_7_days_mm: number | null;
+  rain_max_daily_mm: number | null;
+  temp_mean_c: number | null;
+  temp_min_c: number | null;
+  humidity_mean_pct: number | null;
+  daily_rain_mm: Record<string, number>;
+  source: string;
+  resolution: string;
+  role: string;
+}
+
+// --- POST /satellite/search ---
+export interface SatSearchSource {
+  satellite: string;
+  status: string;
+  role: string;
+  scene_count: number;
+  scenes: { scene_id?: string; acquired?: string | null; cloud_pct?: number | null }[];
+  resolution?: string;
+  source?: string;
+  message?: string;
+  note?: string;
+}
+
+export interface SatSearchOut {
+  bbox: number[];
+  window_days: number;
+  available_count: number;
+  sources: SatSearchSource[];
+  disclaimer: string;
 }

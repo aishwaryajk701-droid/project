@@ -35,6 +35,8 @@ TTL_BY_SOURCE = {
     "sh_catalog": 1800,
     "sh_process": 12 * 3600,
     "landcover": 30 * 24 * 3600,
+    "landsat": 6 * 3600,     # scene metadata — 6 h
+    "nasa": 6 * 3600,        # POWER daily values — 6 h
 }
 
 _client: Optional[httpx.AsyncClient] = None

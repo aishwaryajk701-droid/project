@@ -39,7 +39,7 @@ async def analyze(body: AnalyzeIn, background: BackgroundTasks,
         if not field:
             raise HTTPException(404, "Field not found")
     elif body.save_as_field:
-        from lib.geo import polygon_area_ha, validate_polygon, bbox_from_polygon, polygon_centroid
+        from lib.geo import polygon_area_ha, bbox_from_polygon, polygon_centroid
         try:
             validate_polygon(body.coordinates)
         except PolygonError as exc:

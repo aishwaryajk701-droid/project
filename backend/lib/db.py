@@ -52,6 +52,12 @@ INDEXES: dict[str, list[IndexModel]] = {
     "rate_limits": [IndexModel([("key", ASCENDING)], name="key_idx")],
     "cache": [IndexModel([("expires_at", ASCENDING)], name="expires_ttl",
                          expireAfterSeconds=1)],
+    "cron_runs": [IndexModel([("run_id", ASCENDING)], name="run_id", unique=True)],
+    "satellite_images": [
+        IndexModel([("analysis_id", ASCENDING)], name="analysis_idx"),
+        IndexModel([("acquisition_date", DESCENDING)], name="acquired_desc"),
+        IndexModel([("satellite", ASCENDING), ("created_at", DESCENDING)], name="sat_created"),
+    ],
 }
 
 

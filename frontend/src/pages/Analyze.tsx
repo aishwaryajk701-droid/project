@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { apiGet, apiPost } from "@/lib/api";
 import { INDIA_STATES } from "@/lib/india";
-import type { AnalysisJob, DiscoverOut } from "@/lib/types";
+import type { AnalysisJob, DiscoverOut, SatSearchOut } from "@/lib/types";
 
 export default function Analyze() {
   const nav = useNavigate();
@@ -34,6 +34,11 @@ export default function Analyze() {
   const discover = useMutation({
     mutationFn: () => apiPost<DiscoverOut>("/satellite/discover", { coordinates: boundary }),
     onError: () => toast.error("Satellite discovery failed"),
+  });
+
+  const satSearch = useMutation({
+    mutationFn: () => apiPost<SatSearchOut>("/satellite/search", { coordinates: boundary }),
+    onError: () => toast.error("Multi-satellite search failed"),
   });
 
   const start = useMutation({
@@ -158,6 +163,11 @@ export default function Analyze() {
                 {start.isPending || jobId ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Radar className="w-4 h-4 mr-2" />}
                 {jobId ? "Analysis running…" : "Run full analysis"}
               </Button>
+              <Button variant="secondary" onClick={() => satSearch.mutate()} disabled={!boundary || satSearch.isPending}
+                      data-testid="multisat-search-btn" className="w-full">
+                {satSearch.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Satellite className="w-4 h-4 mr-2" />}
+                Search all satellites (S1, S2, Landsat, NISAR, NASA)
+              </Button>
               <Button variant="secondary" onClick={() => discover.mutate()} disabled={!boundary || discover.isPending}
                       data-testid="discover-btn" className="w-full">
                 {discover.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Satellite className="w-4 h-4 mr-2" />}
@@ -176,6 +186,38 @@ export default function Analyze() {
             )}
           </CardContent>
         </Card>
+
+        {satSearch.data && (
+          <Card className="bg-card border-[#1E3A2B]" data-testid="multisat-search-panel">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base">
+                Multi-satellite availability — {satSearch.data.available_count} source(s) available,
+                last {satSearch.data.window_days} days
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {satSearch.data.sources.map((s) => (
+                <div key={s.satellite} className="text-xs border-b border-[#1E3A2B] pb-1.5"
+                     data-testid={`satsearch-${s.satellite.replace(/[^a-zA-Z0-9]+/g, "-").toLowerCase()}`}>
+                  <div className="flex justify-between gap-2">
+                    <span className="font-medium">{s.satellite}</span>
+                    <span className={s.status === "AVAILABLE" ? "font-mono text-emerald-300" : "font-mono text-amber-400"}>
+                      {s.status}{s.scene_count ? ` · ${s.scene_count} scenes` : ""}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground">{s.role}</p>
+                  {(s.message || s.note) && <p className="text-muted-foreground">{s.message || s.note}</p>}
+                  {s.scenes.slice(0, 3).map((sc, i) => (
+                    <p key={i} className="font-mono text-[11px] text-emerald-200/80">
+                      {String(sc.acquired ?? "").slice(0, 10)} · cloud {sc.cloud_pct ?? "—"}%
+                    </p>
+                  ))}
+                </div>
+              ))}
+              <p className="text-[11px] text-muted-foreground">{satSearch.data.disclaimer}</p>
+            </CardContent>
+          </Card>
+        )}
 
         {discover.data && (
           <Card className="bg-card border-[#1E3A2B]" data-testid="discovery-panel">
